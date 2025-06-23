@@ -1,26 +1,28 @@
-#include <opencv2/opencv.hpp>
 #include <iostream>
-#include "tracker.h"
+#include <opencv2/opencv.hpp>
+#include "src/tracker/tracker.h" // Adjust path as needed based on your includes
 
 int main() {
-    cv::Mat frame = cv::imread("dataset/hotel/0001.png");
-    if (frame.empty()) {
-        std::cerr << "Error: Could not load image!" << std::endl;
+    std::string imagePath = "../dataset/V1/0001.png";
+
+    cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE);
+
+    if (image.empty()) {
+        std::cerr << "Error: Could not open or find the image at " << imagePath << std::endl;
         return -1;
     }
 
     Tracker tracker;
-    std::vector<cv::KeyPoint> keypoints;
-    cv::Mat descriptors;
 
-    tracker.processFrame(frame, keypoints, descriptors);
+    std::vector<cv::KeyPoint> keypoints = tracker.homogeneousOrbExtraction(image, 2000);
 
-    cv::Mat output;
-    cv::drawKeypoints(frame, keypoints, output, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-    cv::imshow("ORB Features", output);
+    std::cout << "Detected " << keypoints.size() << " homogeneous ORB keypoints." << std::endl;
+
+    cv::Mat imgKeypoints;
+    cv::drawKeypoints(image, keypoints, imgKeypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+
+    cv::imshow("Homogeneous ORB Keypoints", imgKeypoints);
     cv::waitKey(0);
-
-    std::cout << "Extracted " << keypoints.size() << " keypoints" << std::endl;
 
     return 0;
 }
